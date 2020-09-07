@@ -91,8 +91,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
 # libraries
 LIBS = -lc -lm -lnosys
-LIBDIR += $(BUILD_DIR)
-# LIBDIR += $(strip $(patsubst %/,%,$(shell echo $(lastword $(shell $(CC) -print-search-dirs | grep -E "^libraries:\s+")) | tr -s =: \ )))
+LIBDIR += $(CACHE_DIR)
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(addprefix -L,$(LIBDIR)) $(LIBS) -Wl,--gc-sections
 
 #######################################
@@ -104,19 +103,19 @@ $(CACHE_DIR)/$(BOOT_OBJECT): $(BOOT_SOURCE) | $(CACHE_DIR)
 
 $(CACHE_DIR)/%.o: $(BASE_PATH)/%.c | $(CACHE_DIR)
 	mkdir -p $(dir $@) && \
-	$(CC) -c $(strip $(CFLAGS)) -Wa,-a,-ad,-alms=$(CACHE_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+	$(CC) -c $(strip $(CFLAGS)) -Wa,-a,-ad,-alms=$(@:.o=.lst) $< -o $@
 
 $(CACHE_DIR)/%.o: ./%.c | $(CACHE_DIR)
 	mkdir -p $(dir $@) && \
 	$(CC) -c $(strip $(CFLAGS)) -Wa,-a,-ad,-alms=$(@:.o=.lst) $< -o $@
 
-$(BUILD_DIR)/libstsupport.a: $(SUPPORT_OBJECTS)
+$(CACHE_DIR)/libstsupport.a: $(SUPPORT_OBJECTS)
 	$(AR) rcs $@ $^
 
-$(BUILD_DIR)/libapplication.a: $(APPLICATION_OBJECTS)
+$(CACHE_DIR)/libapplication.a: $(APPLICATION_OBJECTS)
 	$(AR) rcs $@ $^
 
-$(BUILD_DIR)/application.elf: $(CACHE_DIR)/$(BOOT_OBJECT) $(BUILD_DIR)/libstsupport.a $(BUILD_DIR)/libapplication.a | $(BUILD_DIR)
+$(BUILD_DIR)/application.elf: $(CACHE_DIR)/$(BOOT_OBJECT) $(CACHE_DIR)/libstsupport.a $(CACHE_DIR)/libapplication.a | $(BUILD_DIR)
 	$(CC) $< $(LDFLAGS) -Wl,-Map=$(@:.elf=.map),--cref $(foreach ARCHIVE,$(filter-out $<,$^),$(shell echo $(ARCHIVE) | sed -E 's/^.*lib([a-z]*)\.a$$/-l\1/')) -o $@
 	$(SZ) $@
 
@@ -125,14 +124,3 @@ $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(BIN) $< $@
-
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
-	$(BIN) $< $@
-
-# echo $(shell $(CC) -print-search-dirs) &&
-
-# test: $(CACHE_DIR)/$(BOOT_OBJECT) $(BUILD_DIR)/libstsupport.a $(BUILD_DIR)/libapplication.a | $(BUILD_DIR)
-# 	echo $(shell echo "$(filter-out $<,$^)" | sed -E 's/^.*lib([a-z]*)\.a$$/-l\1/')
-
-test:
-	echo $(SUPPORT_SOURCES)
