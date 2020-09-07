@@ -111,10 +111,10 @@ $(CACHE_DIR)/%.o: ./%.c | $(CACHE_DIR)
 	$(CC) -c $(strip $(CFLAGS)) -Wa,-a,-ad,-alms=$(@:.o=.lst) $< -o $@
 
 $(BUILD_DIR)/libstsupport.a: $(SUPPORT_OBJECTS)
-	$(AR) rcs $@ $^ 
+	$(AR) rcs $@ $^
 
 $(BUILD_DIR)/libapplication.a: $(APPLICATION_OBJECTS)
-	$(AR) rcs $@ $^ 
+	$(AR) rcs $@ $^
 
 $(BUILD_DIR)/application.elf: $(CACHE_DIR)/$(BOOT_OBJECT) $(BUILD_DIR)/libstsupport.a $(BUILD_DIR)/libapplication.a | $(BUILD_DIR)
 	$(CC) $< $(LDFLAGS) -Wl,-Map=$(@:.elf=.map),--cref $(foreach ARCHIVE,$(filter-out $<,$^),$(shell echo $(ARCHIVE) | sed -E 's/^.*lib([a-z]*)\.a$$/-l\1/')) -o $@
@@ -127,7 +127,7 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	$(BIN) $< $@
 
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
-	$(BIN) $< $@	
+	$(BIN) $< $@
 
 # echo $(shell $(CC) -print-search-dirs) &&
 
