@@ -116,12 +116,12 @@ $(CACHE_DIR)/libstsupport.a: $(SUPPORT_OBJECTS)
 $(CACHE_DIR)/libapplication.a: $(APPLICATION_OBJECTS)
 	$(AR) rcs $@ $^
 
-$(BUILD_DIR)/application.elf: $(CACHE_DIR)/$(BOOT_OBJECT) $(CACHE_DIR)/libapplication.a $(CACHE_DIR)/libstsupport.a | $(BUILD_DIR)
+$(BUILD_DIR)/application.elf: $(CACHE_DIR)/$(BOOT_OBJECT) $(CACHE_DIR)/libapplication.a $(CACHE_DIR)/libstsupport.a
 	$(CC) $< $(LDFLAGS) -Wl,-Map=$(@:.elf=.map),--cref $(foreach ARCHIVE,$(filter-out $<,$^),$(shell echo $(ARCHIVE) | sed -E 's/^.*lib([a-z]*)\.a$$/-l\1/')) -o $@
 	$(SZ) $@
 
-$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
+$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf
 	$(HEX) $< $@
 
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
+$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf
 	$(BIN) $< $@
