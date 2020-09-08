@@ -1,17 +1,22 @@
 #######################################
 # MAKE CONFIGS
 #######################################
+
 BASE_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 BASE_PATH := $(BASE_PATH:/=)
+
 
 #######################################
 # DEPENDED VARIABLES
 #######################################
+
 USE_HAL ?= 0
+
 
 #######################################
 # INPUT PATHS
 #######################################
+
 SEARCH_EXCLUDES += $(BASE_PATH)
 ABSOLUTE_EXCLUDE_FLAGS = $(foreach EXCLUDE,$(SEARCH_EXCLUDES),-not -path "$(EXCLUDE)/*")
 RELATIVE_EXCLUDE_FLAGS = $(foreach EXCLUDE,$(SEARCH_EXCLUDES:$(PWD)%=.%),-not -path "$(EXCLUDE)/*")
@@ -26,9 +31,11 @@ APPLICATION_SOURCES = $(shell (find -L . -type f -name '*.c' $(RELATIVE_EXCLUDE_
 LDSCRIPT ?= $(BASE_PATH)/st-support/STM32F103C8Tx.ld
 BOOT_SOURCE ?= $(BASE_PATH)/st-support/startup_stm32f103xb.s
 
+
 #######################################
 # OUTPUT PATHS
 #######################################
+
 BUILD_DIR ?= build
 CACHE_DIR ?= $(BUILD_DIR)/cache
 BOOT_OBJECT ?= boot.o
@@ -38,9 +45,11 @@ APPLICATION_OBJECTS = $(subst /./,/,$(addprefix $(CACHE_DIR)/, $(APPLICATION_SOU
 $(BUILD_DIR) $(CACHE_DIR):
 	mkdir -p $@
 
+
 #######################################
 # BUILD TOOLS
 #######################################
+
 CROSS_PREFIX ?= arm-none-eabi-
 ifdef GCC_PATH
 CC = $(GCC_PATH)/$(CROSS_PREFIX)gcc
@@ -62,14 +71,17 @@ BIN = $(CP) -O binary -S
 #######################################
 # TARGET
 #######################################
+
 DEBUG ?= 1
 OPT ?= -Og
 CPU ?= -mcpu=cortex-m3
 MCU = $(CPU) -mthumb
 
+
 #######################################
 # CUSTOMIZATION
 #######################################
+
 AS_DEFS ?=
 C_DEFS ?= \
 -DSTM32F103xB
@@ -90,6 +102,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LIBS = -lc -lm -lnosys
 LIBDIR += $(CACHE_DIR)
 LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(addprefix -L,$(LIBDIR)) $(LIBS) -Wl,--gc-sections
+
 
 #######################################
 # BUILD COMPONENTS
