@@ -12,19 +12,17 @@ USE_HAL ?= 0
 #######################################
 # INPUT PATHS
 #######################################
-VENDOR_DIR ?= ./vendor
 SEARCH_EXCLUDES += $(BASE_PATH)
 ABSOLUTE_EXCLUDE_FLAGS = $(foreach EXCLUDE,$(SEARCH_EXCLUDES),-not -path "$(EXCLUDE)/*")
 RELATIVE_EXCLUDE_FLAGS = $(foreach EXCLUDE,$(SEARCH_EXCLUDES:$(PWD)%=.%),-not -path "$(EXCLUDE)/*")
 AS_INCLUDE_PATHS ?=
 C_INCLUDE_PATHS += $(shell find $(BASE_PATH)/st-support -type f -name '*.h' -exec dirname {} \; | sort | uniq)
-C_INCLUDE_PATHS += $(shell (find $(VENDOR_DIR) -maxdepth 3 -type f -name '*.h' -exec dirname {} \; 2>/dev/null) | sort | uniq)
-C_INCLUDE_PATHS += $(shell (find . -maxdepth 3 -type f -name '*.h' $(ABSOLUTE_EXCLUDE_FLAGS) -exec dirname {} \; 2>/dev/null) | sort | uniq)
+C_INCLUDE_PATHS += $(shell (find -L . -type f -name '*.h' $(RELATIVE_EXCLUDE_FLAGS) -exec dirname {} \; 2>/dev/null) | sort | uniq)
 SUPPORT_SOURCES := $(shell cd $(BASE_PATH) && (find ./st-support -type f -name '*.c' -not -path "./st-support/hal/*" 2>/dev/null))
 ifeq ($(USE_HAL), 1)
 SUPPORT_SOURCES += $(filter-out %template.c,$(shell cd $(BASE_PATH) && (find ./st-support/hal -type f -name '*.c' 2>/dev/null)))
 endif
-APPLICATION_SOURCES = $(shell (find . -type f -name '*.c' $(RELATIVE_EXCLUDE_FLAGS) 2>/dev/null))
+APPLICATION_SOURCES = $(shell (find -L . -type f -name '*.c' $(RELATIVE_EXCLUDE_FLAGS) 2>/dev/null))
 LDSCRIPT ?= $(BASE_PATH)/st-support/STM32F103C8Tx.ld
 BOOT_SOURCE ?= $(BASE_PATH)/st-support/startup_stm32f103xb.s
 
