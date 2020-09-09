@@ -18,7 +18,6 @@ USE_HAL ?= 0
 #######################################
 
 SEARCH_EXCLUDES += $(BASE_PATH)
-ABSOLUTE_EXCLUDE_FLAGS = $(foreach EXCLUDE,$(SEARCH_EXCLUDES),-not -path "$(EXCLUDE)/*")
 RELATIVE_EXCLUDE_FLAGS = $(foreach EXCLUDE,$(SEARCH_EXCLUDES:$(PWD)%=.%),-not -path "$(EXCLUDE)/*")
 AS_INCLUDE_PATHS ?=
 C_INCLUDE_PATHS += $(shell find $(BASE_PATH)/st-support -type f -name '*.h' -exec dirname {} \; | sort | uniq)
